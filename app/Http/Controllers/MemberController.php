@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Member;
+use App\Models\Book;
 
 use Illuminate\Http\Request;
 
@@ -14,7 +16,7 @@ class MemberController extends Controller
     {
         $members = Member::all();
 
-        return view('members.index', compact('members'));
+        return view('welcome', compact('members'));
     }
 
     /**
@@ -60,34 +62,74 @@ class MemberController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Member $member)
-{
-    return view('members.edit', compact('member'));
-}
+    {
+        return view('members.edit', compact('member'));
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Member $member)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-    ]);
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
 
-    $member->update([
-        'name' => $request->input('name'),
-    ]);
+        $member->update([
+            'name' => $request->input('name'),
+        ]);
 
-    return redirect('/')->with('success', 'Anggota berhasil diubah!');
-    
-}
+        return redirect('/')->with('success', 'Anggota berhasil diubah!');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Member $member)
-{
-    $member->delete();
-    return redirect('/')->with('success', 'Anggota berhasil dihapus!');
-    
-}
+    {
+        $member->delete();
+        return redirect('/')->with('success', 'Anggota berhasil dihapus!');
+    }
+
+    public function borrowedBooks($id)
+    {
+        $member = Member::with('books')->findOrFail($id); // Get member with borrowed books
+        $books = $member->books; // Books borrowed by the member
+
+        // Get the available books (those not yet borrowed by any member)
+        $availableBooks = Book::whereNull('member_id')->get();
+        return view('members.borrowed', compact('member', 'books', 'availableBooks'));
+    }
+
+    public function assignBook(Request $request, $id)
+    {
+        $member = Member::findOrFail($id);
+        $bookId = $request->input('book_id');
+        $book = Book::findOrFail($bookId);
+
+        // Assign the book to the member
+        if (!$book->member_id) {
+            $book->member_id = $member->id;
+            $book->save();
+
+            return redirect()->route('members.borrowed', $member->id)->with('success', 'Buku berhasil dipinjam!');
+        }
+
+        return redirect()->route('members.borrowed', $member->id)->with('error', 'Buku sudah dipinjam.');
+    }
+
+
+
+    public function releaseBook(Request $request, $id)
+    {
+        $member = Member::findOrFail($id);
+        $bookId = $request->input('book_id');
+        $book = Book::findOrFail($bookId);
+
+        if ($book->member_id == $member->id) {
+            $book->member_id = null; // Lepas pinjaman
+            $book->save();
+        }
+        return redirect()->route('members.borrowed', $member->id)->with('error', 'Buku sudah dipinjam.');
+    }
 }

@@ -12,15 +12,16 @@ class BookController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        // Mengambil data buku beserta kategori dan anggota
-        $books = Book::with('categories', 'member')->get();
-        $categories = Category::all(); // Jika perlu mengirim kategori juga
-        $members = Member::all(); // Jika perlu mengirim anggota juga
+{
+    // Fetch books along with their categories and members
+    $books = Book::with('categories', 'member')->get();
+    $categories = Category::all();
+    $members = Member::all();
+    
+    // Pass books, categories, and members to the view
+    return view('welcome', compact('books', 'categories', 'members'));
+}
 
-        // Mengirimkan data buku, kategori, dan anggota ke view
-        return view('welcome', compact('books', 'categories', 'members'));
-    }
 
     /**
      * Show the form for creating a new resource.

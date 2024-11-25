@@ -16,7 +16,9 @@ use App\Http\Controllers\MemberController;
 |
 */
 
-Route::get('/', [BookController::class, 'index']);
+// In routes/web.php
+Route::get('/', [BookController::class, 'index'])->name('welcome');
+
 
 Route::resource('books', BookController::class);
 Route::resource('categories', CategoryController::class);
@@ -40,3 +42,9 @@ Route::get('/members/create', [MemberController::class, 'create'])->name('member
 Route::post('/members', [MemberController::class, 'store'])->name('members.store');
 Route::get('members/{member}/edit', [MemberController::class, 'edit'])->name('members.edit');
 Route::put('members/{member}', [MemberController::class, 'update'])->name('members.update');
+
+Route::get('/members/{id}/borrowed', [MemberController::class, 'borrowedBooks'])->name('members.borrowed');
+Route::post('/members/{id}/release', [MemberController::class, 'releaseBook'])->name('members.release');
+Route::post('/members/{member}/assign', [MemberController::class, 'assignBook'])->name('members.books.assign');
+
+

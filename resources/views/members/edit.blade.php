@@ -16,10 +16,6 @@
                 <label for="name" class="form-label">Nama Anggota</label>
                 <input type="text" class="form-control" id="name" name="name" value="{{ $member->name }}" required>
             </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email Anggota</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ $member->email }}" required>
-            </div>
             <button type="submit" class="btn btn-primary">Update Anggota</button>
         </form>
     </div>
